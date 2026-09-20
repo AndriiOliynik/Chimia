@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ультимативний хімічний тренажер</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --success: #2ec4b6;
+            --danger: #e71d36;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #2b2d42;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .container {
+            max-width: 100%;
+            width: 480px;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin: 10px 0 5px 0;
+        }
+        .subtitle {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+        .progress-bar {
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            width: 100%;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background-color: var(--primary);
+            height: 100%;
+            width: 4.54%;
+            transition: width 0.3s;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            position: relative;
+            box-sizing: border-box;
+        }
+        .badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: #e2eafc;
+            color: var(--primary);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+        .equation-block {
+            margin: 15px 0;
+            padding: 10px;
+            border-left: 4px solid #ced4da;
+            background: #f1f5f9;
+            border-radius: 0 8px 8px 0;
+            display: none;
+        }
+        .equation-block.active {
+            display: block;
+        }
+        .equation-title {
+            font-weight: bold;
+            font-size: 0.85rem;
+            color: #495057;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 5px;
+        }
+        .formula-row {
+            font-size: 1.1rem;
+            letter-spacing: 0.3px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px;
+            line-height: 2.4;
+        }
+        .input-container {
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+        }
+        input[type="number"] {
+            width: 34px;
+            height: 28px;
+            font-size: 1rem;
+            text-align: center;
+            border: 2px solid #cbd5e1;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.2s;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        input.index-input {
+            width: 28px;
+            height: 22px;
+            font-size: 0.8rem;
+            border: 2px solid #a5b4fc;
+            background-color: #f5f3ff;
+            margin-top: 8px;
+            margin-left: -2px;
+            margin-right: 2px;
+        }
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            background-color: #fff;
+        }
+        input.correct {
+            border-color: var(--success) !important;
+            background-color: #d1fae5 !important;
+            color: #065f46;
+        }
+        input.wrong {
+            border-color: var(--danger) !important;
+            background-color: #fee2e2 !important;
+            color: #991b1b;
+        }
+        .btn-hint {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0 3px;
+            vertical-align: middle;
+        }
+        .hint-text {
+            display: none;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        button.action-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+            flex: 1;
+            text-align: center;
+        }
+        button.action-btn:hover {
+            background-color: #3a5a87;
+        }
+        button:disabled {
+            background-color: #cccccc !important;
+            cursor: not-allowed;
+        }
+        .success-banner {
+            display: none;
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        sub, supr {
+            font-size: 0.6em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🧪 Хімічний Тренажер</h1>
+    <div class="subtitle">Порожнє поле = коефіцієнт або індекс 1</div>
+    
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="badge" id="taskCategory">Завантаження...</div>
+        <h3 id="taskTitle" style="margin-top:0; margin-bottom:5px; font-size:1.1rem; color: var(--primary);">Задача</h3>
+        <p id="taskDescription" style="font-weight: 500; font-size: 0.95rem; margin: 5px 0 15px 0; color: #495057;"></p>
+
+        <!-- ЕТАП 1: Молекулярне рівняння з індексами -->
+        <div class="equation-block active" id="block-mol">
+            <div class="equation-title">
+                <span>1. Молекулярне рівняння та індекси солі:</span>
+                <button class="btn-hint" onclick="toggleHint('hint-mol')">💡</button>
+            </div>
+            <div class="formula-row" id="html-mol"></div>
+            <div class="hint-text" id="hint-mol"></div>
+        </div>
+
+        <!-- ЕТАП 2: Повне йонне рівняння -->
+        <div class="equation-block" id="block-full">
+            <div class="equation-title">
+                <span>2. Повний йонний вигляд:</span>
+                <button class="btn-hint" onclick="toggleHint('hint-full')">💡</button>
+            </div>
+            <div class="formula-row" id="html-full"></div>
+            <div class="hint-text" id="hint-full"></div>
+        </div>
+
+        <!-- ЕТАП 3: Скорочене йонне рівняння -->
+        <div class="equation-block" id="block-short">
+            <div class="equation-title">
+                <span>3. Скорочений йонний вигляд:</span>
+                <button class="btn-hint" onclick="toggleHint('hint-short')">💡</button>
+            </div>
+            <div class="formula-row" id="html-short"></div>
+            <div class="hint-text" id="hint-short"></div>
+        </div>
+
+        <div class="success-banner" id="successBanner">🎉 Супер! Рівняння повністю розв'язано!</div>
+
+        <div style="margin-top: 15px; text-align: right; display: flex;">
+            <button class="action-btn" id="checkBtn" onclick="checkCurrentStep()">Перевірити рядок</button>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button class="action-btn" id="prevBtn" onclick="changeTask(-1)" disabled>← Назад</button>
+        <button class="action-btn" id="nextBtn" onclick="changeTask(1)">Вперед →</button>
+    </div>
+</div>
+
+<script>
+const db = [
+    // --- ДОМАШНЯ РОБОТА ---
+    {
+        cat: "Домашня робота",
+        desc: "HCl + NaOH (Соляна кислота + гідроксид натрію)",
+        hints: {
+            mol: "Усі елементи вже в балансі. Залиш всі поля порожніми або постав усюди 1.",
+            full: "Всі сильні електроліти розпадаються на одиночні йони. Залиш поля порожніми (1).",
+            short: "Класичне утворення молекули води: H⁺ + OH⁻ → H₂O. Залиш поля порожніми."
+        },
+        mol: { text: "[m0]HCl + [m1]NaOH → [m2]Na[i0]Cl[i1] + [m3]H₂O", ans: [1,1,1,1,1,1] },
+        full: { text: "[f0]H⁺ + [f1]Cl⁻ + [f2]Na⁺ + [f3]OH⁻ → [f4]Na⁺ + [f5]Cl⁻ + [f6]H₂O", ans: [1,1,1,1,1,1,1] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [1,1,1] }
+    },
+    {
+        cat: "Домашня робота",
+        desc: "H₂SO₄ + KOH (Сірчана кислота + гідроксид калію)",
+        hints: {
+            mol: "Калій у I групі (сила 1), група SO₄ має силу 2. Тому сіль буде K₂SO₄ (індекси 2 і 1). Перед KOH став 2, перед водою — 2.",
+            full: "Серчана кислота дає 2H⁺. Перед KOH стояла велика 2, тому буде 2K⁺ та 2OH⁻. Справа сіль дасть 2K⁺.",
+            short: "Ваш вчитель залишає двійки для точного підрахунку: 2H⁺ + 2OH⁻ → 2H₂O."
+        },
+        mol: { text: "[m0]H₂SO₄ + [m1]KOH → [m2]K[i0](SO₄)[i1] + [m3]H₂O", ans: [1,2,1,2,2,1] },
+        full: { text: "[f0]H⁺ + [f1]SO₄²⁻ + [f2]K⁺ + [f3]OH⁻ → [f4]K⁺ + [f5]SO₄²⁻ + [f6]H₂O", ans: [2,1,2,2,2,1,2] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [2,2,2] }
+    },
+    {
+        cat: "Домашня робота",
+        desc: "HNO₃ + Ca(OH)₂ (Азотна кислота + гідроксид кальцію)",
+        hints: {
+            mol: "Кальцій у II групі (сила 2), група NO₃ має силу 1. Сіль: Ca₁(NO₃)₂. Ставимо велику 2 перед HNO₃ та велику 2 перед водою.",
+            full: "Дві азотні кислоти дають 2H⁺ та 2NO₃⁻. Справа дві групи нітрату виходять як 2NO₃⁻.",
+            short: "Два йони водню та два гідроксид-іони утворюють 2 молекули води: 2, 2, 2."
+        },
+        mol: { text: "[m0]HNO₃ + [m1]Ca(OH)₂ → [m2]Ca[i0](NO₃)[i1] + [m3]H₂O", ans: [2,1,1,2,1,2] },
+        full: { text: "[f0]H⁺ + [f1]NO₃⁻ + [f2]Ca²⁺ + [f3]OH⁻ → [f4]Ca²⁺ + [f5]NO₃⁻ + [f6]H₂O", ans: [2,2,1,2,1,2,2] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [2,2,2] }
+    },
+    {
+        cat: "Домашня робота",
+        desc: "H₂SO₄ + NaOH (Сірчана кислота + гідроксид натрію)",
+        hints: {
+            mol: "Натрій у I групі, група SO₄ має силу 2. Сіль: Na₂SO₄ (індекси 2 і 1). Велику 2 став перед NaOH та велику 2 перед водою.",
+            full: "Зліва маємо 2H⁺ від кислоти, та 2Na⁺, 2OH⁻ від лугу. Справа сіль розпадається на 2Na⁺ та SO₄²⁻.",
+            short: "Зв'язування води: 2H⁺ + 2OH⁻ → 2H₂O."
+        },
+        mol: { text: "[m0]H₂SO₄ + [m1]NaOH → [m2]Na[i0](SO₄)[i1] + [m3]H₂O", ans: [1,2,1,2,2,1] },
+        full: { text: "[f0]H⁺ + [f1]SO₄²⁻ + [f2]Na⁺ + [f3]OH⁻ → [f4]Na⁺ + [f5]SO₄²⁻ + [f6]H₂O", ans: [2,1,2,2,2,1,2] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [2,2,2] }
+    },
+    {
+        cat: "Домашня робота",
+        desc: "HNO₃ + KOH (Азотна кислота + гідроксид калію)",
+        hints: {
+            mol: "Ідеальний баланс від самого початку. Сіль: K₁_1(NO₃)₁_1. Усі коефіцієнти рівні 1 (можна залишити порожніми).",
+            full: "Усі частинки поодинокі, великі множники не потрібні. Скрізь 1.",
+            short: "1 катіон водню та 1 гідроксид-іон будують 1 молекулу води."
+        },
+        mol: { text: "[m0]HNO₃ + [m1]KOH → [m2]K[i0](NO₃)[i1] + [m3]H₂O", ans: [1,1,1,1,1,1] },
+        full: { text: "[f0]H⁺ + [f1]NO₃⁻ + [f2]K⁺ + [f3]OH⁻ → [f4]K⁺ + [f5]NO₃⁻ + [f6]H₂O", ans: [1,1,1,1,1,1,1] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [1,1,1] }
+    },
+    {
+        cat: "Домашня робота",
+        desc: "HBr + Ba(OH)₂ (Бромоводнева кислота + гідроксид барію)",
+        hints: {
+            mol: "Барій у II групі (сила 2), бром має силу 1. Сіль: Ba₁Br₂. Став велику 2 перед HBr та велику 2 перед водою.",
+            full: "Два HBr розпадаються на 2H⁺ та 2Br⁻. Справа розчинна сіль дає один Ba²⁺ та два йони брому 2Br⁻.",
+            short: "Два водні та два гідроксиди дають дві молекули води: 2, 2, 2."
+        },
+        mol: { text: "[m0]HBr + [m1]Ba(OH)₂ → [m2]Ba[i0]Br[i1] + [m3]H₂O", ans: [2,1,1,2,1,2] },
+        full: { text: "[f0]H⁺ + [f1]Br⁻ + [f2]Ba²⁺ + [f3]OH⁻ → [f4]Ba²⁺ + [f5]Br⁻ + [f6]H₂O", ans: [2,2,1,2,1,2,2] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [2,2,2] }
+    },
+
+    // --- КЛАССНАЯ РАБОТА ---
+    {
+        cat: "Класна робота",
+        desc: "Mn(OH)₂ + H₃PO₄ (Гідроксид марганцю(II) + ортофосфорна кислота)",
+        hints: {
+            mol: "Марганець має силу 2, група PO₄ — силу 3. Спільний баланс — 6. Сіль: Mn₃(PO₄)₂. Великі коефіцієнти: 3 перед основою, 2 перед кислотою, 6 перед водою.",
+            full: "Три молекули основи дають 3Mn²⁺ та 6OH⁻. Дві молекули кислоти дають 6H⁺ та 2PO₄³⁻. Справа сіль дасть 3Mn²⁺ та 2PO₄³⁻.",
+            short: "Збираємо воду: 6 катіонів водню та 6 гідроксид-іонів дають нам 6H₂O."
+        },
+        mol: { text: "[m0]Mn(OH)₂ + [m1]H₃PO₄ → [m2]Mn[i0](PO₄)[i1] + [m3]H₂O", ans: [3,2,1,6,3,2] },
+        full: { text: "[f0]Mn²⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]PO₄³⁻ → [f4]Mn²⁺ + [f5]PO₄³⁻ + [f6]H₂O", ans: [3,6,6,2,3,2,6] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [6,6,6] }
+    },
+    {
+        cat: "Класна робота",
+        desc: "Mn(OH)₃ + H₂SiO₃ (Гідроксид марганцю(III) + кремнієва кислота)",
+        hints: {
+            mol: "Марганець(III) — сила 3, силікат SiO₃ — сила 2. Сіль: Mn₂(SiO₃)₃. Великі коефіцієнти: 2 перед основою, 3 перед кислотою, 6 перед водою.",
+            full: "Перемножуємо: зліва маємо 2Mn³⁺ та 6OH⁻, а також 6H⁺ та 3SiO₃²⁻. Справа сіль дає 2Mn³⁺ та 3SiO₃²⁻.",
+            short: "Шість іонів гідроксиду та шість воднів створюють 6 молекул води: 6, 6, 6."
+        },
+        mol: { text: "[m0]Mn(OH)₃ + [m1]H₂SiO₃ → [m2]Mn[i0](SiO₃)[i1] + [m3]H₂O", ans: [2,3,1,6,2,3] },
+        full: { text: "[f0]Mn³⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]SiO₃²⁻ → [f4]Mn³⁺ + [f5]SiO₃²⁻ + [f6]H₂O", ans: [2,6,6,3,2,3,6] },
+        short: { text: "[s0]OH⁻ + [s1]H⁺ → [s2]H₂O", ans: [6,6,6] }
+    },
+    {
+        cat: "Класна робота",
+        desc: "Fe(OH)₂ + H₃AsO₄ (Гідроксид заліза(II) + миш'якова кислота)",
+        hints: {
+            mol: "Залізо(II) — сила 2, група AsO₄ — сила 3. Формула солі: Fe₃(AsO₄)₂. Великі коефіцієнти: 3 перед основою, 2 перед кислотою, 6 перед водою.",
+            full: "У розчині виявиться 3Fe²⁺ та 6OH⁻ від основи, а також 6H⁺ та 2AsO₄³⁻ від кислоти. Справа сіль дасть 3Fe²⁺ та 2AsO₄³⁻.",
+            short: "Об'єднання для нейтралізації: 6 катіонів водню + 6 гідроксид-іонів = 6 молекул води."
+        },
+        mol: { text: "[m0]Fe(OH)₂ + [m1]H₃AsO₄ → [m2]Fe[i0](AsO₄)[i1] + [m3]H₂O", ans: [3,2,1,6,3,2] },
+        full: { text: "[f0]Fe²⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]AsO₄³⁻ → [f4]Fe²⁺ + [f5]AsO₄³⁻ + [f6]H₂O", ans: [3,6,6,2,3,2,6] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [6,6,6] }
+    },
+    {
+        cat: "Класна робота",
+        desc: "Fe(OH)₃ + H₄P₂O₇ (Гідроксид заліза(III) + пірофосфорна кислота)",
+        hints: {
+            mol: "Залізо(III) має силу 3, група P₂O₇ — силу 4. Баланс сил дає число 12. Сіль: Fe₄(P₂O₇)₃. Великі коефіцієнти: 4 перед основою, 3 перед кислотою, 12 перед водою.",
+            full: "Множимо: 4 молекули основи дають 4Fe³⁺ та 12OH⁻. 3 молекули кислоти дають 12H⁺ та 3P₂O₇⁴⁻. Справа буде 4Fe³⁺ та 3P₂O₇⁴⁻.",
+            short: "12 катіонів водню та 12 гідроксид-іонів будують разом 12 молекул води."
+        },
+        mol: { text: "[m0]Fe(OH)₃ + [m1]H₄P₂O₇ → [m2]Fe[i0](P₂O₇)[i1] + [m3]H₂O", ans: [4,3,1,12,4,3] },
+        full: { text: "[f0]Fe³⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]P₂O₇⁴⁻ → [f4]Fe³⁺ + [f5]P₂O₇⁴⁻ + [f6]H₂O", ans: [4,12,12,3,4,3,12] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [12,12,12] }
+    },
+    {
+        cat: "Класна робота",
+        desc: "Fe(OH)₂ + H₃AsO₃ (Гідроксид заліза(II) + миш'яковиста кислота)",
+        hints: {
+            mol: "Залізо(II) — сила 2, арсеніт AsO₃ — сила 3. Сіль має індекси 3 і 2: Fe₃(AsO₃)₂. Коефіцієнти попереду речовин: 3, 2, 1, 6.",
+            full: "Зліва утворюються три йони заліза 3Fe²⁺ та шість іонів 6OH⁻, а також 6H⁺ та 2AsO₃³⁻ від кислоти. Справа сіль дає 3Fe²⁺ та 2AsO₃³⁻.",
+            short: "Шість вільних воднів та шість гідроксидів перетворюються на 6 молекул води."
+        },
+        mol: { text: "[m0]Fe(OH)₂ + [m1]H₃AsO₃ → [m2]Fe[i0](AsO₃)[i1] + [m3]H₂O", ans: [3,2,1,6,3,2] },
+        full: { text: "[f0]Fe²⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]AsO₃³⁻ → [f4]Fe²⁺ + [f5]AsO₃³⁻ + [f6]H₂O", ans: [3,6,6,2,3,2,6] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [6,6,6] }
+    },
+    {
+        cat: "Класна робота",
+        desc: "Ba(OH)₂ + H₄Sb₂O₇ (Гідроксид барію + дисурм'яна кислота)",
+        hints: {
+            mol: "Барій має силу 2, група Sb₂O₇ — силу 4. Щоб зрівняти їх, беремо 2 барії на 1 групу. Сіль: Ba₂Sb₂O₇ (індекси 2 і 1). Перед лугом став велику 2, перед водою — 4.",
+            full: "Увага! Сіль Ba₂Sb₂O₇ є осадом, тому вона НЕ розпадається на йони справа і стоїть цілою молекулою з великим коефіцієнтом 1! Зліва маємо: 2Ba²⁺, 4OH⁻, 4H⁺, 1Sb₂O₇⁴⁻.",
+            short: "Оскільки осад справа не розпався, скорочене рівняння повністю копіює повне йонне! Просто перенеси туди всі коефіцієнти (2, 4, 4, 1, 1, 4)."
+        },
+        mol: { text: "[m0]Ba(OH)₂ + [m1]H₄Sb₂O₇ → [m2]Ba[i0](Sb₂O₇)[i1] + [m3]H₂O", ans: [2,1,1,4,2,1] },
+        full: { text: "[f0]Ba²⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]Sb₂O₇⁴⁻ → [f4]Ba₂Sb₂O₇ + [f5]H₂O", ans: [2,4,4,1,1,4] },
+        short: { text: "[s0]Ba²⁺ + [s1]OH⁻ + [s2]H⁺ + [s3]Sb₂O₇⁴⁻ → [s4]Ba₂Sb₂O₇ + [s5]H₂O", ans: [2,4,4,1,1,4] }
+    },
+
+    // --- ДОПОЛНИТЕЛЬНЫЕ ПРИМЕРЫ ---
+    {
+        cat: "Додаткова тренування",
+        desc: "LiOH + H₂SO₄ (Гідроксид літію + сірчана кислота)",
+        hints: {
+            mol: "Літій у I групі, група SO₄ має силу 2. Формула солі: Li₂SO₄. Велику 2 став перед LiOH та велику 2 перед водою.",
+            full: "Два молекули лугу дають 2Li⁺ та 2OH⁻. Справа у солі індекс два переноситься наперед: буде 2Li⁺.",
+            short: "Два катіони водню з'єднуються з двома гідроксид-іонами у дві молекули води."
+        },
+        mol: { text: "[m0]LiOH + [m1]H₂SO₄ → [m2]Li[i0](SO₄)[i1] + [m3]H₂O", ans: [2,1,1,2,2,1] },
+        full: { text: "[f0]Li⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]SO₄²⁻ → [f4]Li⁺ + [f5]SO₄²⁻ + [f6]H₂O", ans: [2,2,2,1,2,1,2] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [2,2,2] }
+    },
+    {
+        cat: "Додаткова тренування",
+        desc: "Ca(OH)₂ + HCl (Гідроксид кальцію + соляна кислота)",
+        hints: {
+            mol: "Кальцій має силу 2, хлор — силу 1. Сіль: CaCl₂. Став велику 2 перед соляною кислотою HCl та велику 2 перед водою.",
+            full: "Зліва дві молекули HCl розбиваються на 2H⁺ та 2Cl⁻. Справа хлорид кальція дає один Ca²⁺ та два йони брому/хлору 2Cl⁻.",
+            short: "Традиційне поєднання: два водні та два гідроксиди дають 2 молекули води."
+        },
+        mol: { text: "[m0]Ca(OH)₂ + [m1]HCl → [m2]Ca[i0]Cl[i1] + [m3]H₂O", ans: [1,2,1,2,1,2] },
+        full: { text: "[f0]Ca²⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]Cl⁻ → [f4]Ca²⁺ + [f5]Cl⁻ + [f6]H₂O", ans: [1,2,2,2,1,2,2] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [2,2,2] }
+    },
+    {
+        cat: "Додаткова тренування",
+        desc: "Al(OH)₃ + H₂SO₄ (Гідроксид алюмінію + сірчана кислота)",
+        hints: {
+            mol: "Алюміній у III групі (сила 3), група SO₄ має силу 2. Спільне число — 6. Сіль: Al₂(SO₄)₃. Попереду речовин ставимо великі коефіцієнти: 2, 3, 1, 6.",
+            full: "Два Al(OH)₃ дають 2Al³⁺ та 6OH⁻. Три кислоти дають 6H⁺ та 3SO₄²⁻. Справа розчинна сіль дає 2Al³⁺ та 3SO₄²⁻.",
+            short: "Шість вільних воднів зв'язуються з шістьма гідроксид-іонами лугу, утворюючи 6H₂O."
+        },
+        mol: { text: "[m0]Al(OH)₃ + [m1]H₂SO₄ → [m2]Al[i0](SO₄)[i1] + [m3]H₂O", ans: [2,3,1,6,2,3] },
+        full: { text: "[f0]Al³⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]SO₄²⁻ → [f4]Al³⁺ + [f5]SO₄²⁻ + [f6]H₂O", ans: [2,6,6,3,2,3,6] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [6,6,6] }
+    },
+    {
+        cat: "Додаткова тренування",
+        desc: "NaOH + H₃PO₄ (Гідроксид натрію + ортофосфорна кислота)",
+        hints: {
+            mol: "Натрій має силу 1, фосфат PO₄ — силу 3. Формула солі: Na₃PO₄. Постав велику 3 перед NaOH та велику 3 перед водою.",
+            full: "Три молекули NaOH розпадаються на 3Na⁺ та 3OH⁻. Справа розчинна сіль дає три катіони натрію 3Na⁺ та один фосфат.",
+            short: "Три катіони водню та три гідроксид-іони разом будують 3 молекулы води."
+        },
+        mol: { text: "[m0]NaOH + [m1]H₃PO₄ → [m2]Na[i0](PO₄)[i1] + [m3]H₂O", ans: [3,1,1,3,3,1] },
+        full: { text: "[f0]Na⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]PO₄³⁻ → [f4]Na⁺ + [f5]PO₄³⁻ + [f6]H₂O", ans: [3,3,3,1,3,1,3] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [3,3,3] }
+    },
+    {
+        cat: "Додаткова тренування",
+        desc: "Ba(OH)₂ + HNO₃ (Гідроксид барію + азотна кислота)",
+        hints: {
+            mol: "Барій у II групі (сила 2), група NO₃ має силу 1. Сіль: Ba(NO₃)₂. Постав велику 2 перед HNO₃ та велику 2 перед водою H₂O.",
+            full: "Зліва дві молекули азотної кислоти дають нам 2H⁺ та 2NO₃⁻. Справа сіль дасть один Ba²⁺ та дві групи нітрату 2NO₃⁻.",
+            short: "Два йони водню нейтралізуються двома анионами гідроксиду з виходом двох молекул води."
+        },
+        mol: { text: "[m0]Ba(OH)₂ + [m1]HNO₃ → [m2]Ba[i0](NO₃)[i1] + [m3]H₂O", ans: [1,2,1,2,1,2] },
+        full: { text: "[f0]Ba²⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]NO₃⁻ → [f4]Ba²⁺ + [f5]NO₃⁻ + [f6]H₂O", ans: [1,2,2,2,1,2,2] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [2,2,2] }
+    },
+    {
+        cat: "Додаткова тренування",
+        desc: "KOH + HF (Гідроксид калію + фтороводнева кислота)",
+        hints: {
+            mol: "Рівняння повністю збалансоване від самого початку. Сіль має індекси 1 і 1: KF. Великі коефіцієнти теж скрізь рівні 1.",
+            full: "Усі елементи утворюють поодинокі катіони та аніони. Попереду кожного йона запиши 1.",
+            short: "Базовий рівень: один водень плюс один гідроксид дають одну воду."
+        },
+        mol: { text: "[m0]KOH + [m1]HF → [m2]K[i0]F[i1] + [m3]H₂O", ans: [1,1,1,1,1,1] },
+        full: { text: "[f0]K⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]F⁻ → [f4]K⁺ + [f5]F⁻ + [f6]H₂O", ans: [1,1,1,1,1,1,1] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [1,1,1] }
+    },
+    {
+        cat: "Додаткова тренування",
+        desc: "CsOH + HNO₂ (Гідроксид цезію + азотиста кислота)",
+        hints: {
+            mol: "Цезій має силу 1, азотиста група — силу 1. Сіль має вигляд CsNO₂ (індекси 1 і 1). Усі коефіцієнти рівні 1.",
+            full: "Поодинокі йони плавають у розчині без великих множників. Заповнюй поля одиницями або залишай порожніми.",
+            short: "Один водень і один гідроксид створюють одну молекулу чистої води."
+        },
+        mol: { text: "[m0]CsOH + [m1]HNO₂ → [m2]Cs[i0](NO₂)[i1] + [m3]H₂O", ans: [1,1,1,1,1,1] },
+        full: { text: "[f0]Cs⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]NO₂⁻ → [f4]Cs⁺ + [f5]NO₂⁻ + [f6]H₂O", ans: [1,1,1,1,1,1,1] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [1,1,1] }
+    },
+    {
+        cat: "Додаткова тренування",
+        desc: "Mg(OH)₂ + HBr (Гідроксид магнію + бромоводнева кислота)",
+        hints: {
+            mol: "Магній у II групі (сила 2), бром має силу 1. Сіль: MgBr₂ (індекси 1 і 2). Постав велику 2 перед HBr та велику 2 перед водою.",
+            full: "Дві молекули кислоти HBr дають нам 2H⁺ та 2Br⁻. Справа з солі виділяться один Mg²⁺ та два йони брому 2Br⁻.",
+            short: "Два йони водню зв'язують два гідроксиди, на виході маємо 2H₂O."
+        },
+        mol: { text: "[m0]Mg(OH)₂ + [m1]HBr → [m2]Mg[i0]Br[i1] + [m3]H₂O", ans: [1,2,1,2,1,2] },
+        full: { text: "[f0]Mg²⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]Br⁻ → [f4]Mg²⁺ + [f5]Br⁻ + [f6]H₂O", ans: [1,2,2,2,1,2,2] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [2,2,2] }
+    },
+    {
+        cat: "Додаткова тренування",
+        desc: "RbOH + H₃PO₄ (Гідроксид рубідію + ортофосфорна кислота)",
+        hints: {
+            mol: "Рубідій у I групі — сила 1, фосфатна група — сила 3. Формула солі: Rb₃PO₄. Став велику 3 перед лугом RbOH та велику 3 перед водою.",
+            full: "Три молекули RbOH дають 3Rb⁺ та 3OH⁻. Справа розчинна сіль розпадається, утворюючи три окремі йони рубідію 3Rb⁺.",
+            short: "Три катіони водню та три гідроксид-іони разом будують 3 молекули води."
+        },
+        mol: { text: "[m0]RbOH + [m1]H₃PO₄ → [m2]Rb[i0](PO₄)[i1] + [m3]H₂O", ans: [3,1,1,3,3,1] },
+        full: { text: "[f0]Rb⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]PO₄³⁻ → [f4]Rb⁺ + [f5]PO₄³⁻ + [f6]H₂O", ans: [3,3,3,1,3,1,3] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [3,3,3] }
+    },
+    {
+        cat: "Додаткова тренування",
+        desc: "Ca(OH)₂ + H₂SeO₄ (Гідроксид кальцію + селенова кислота)",
+        hints: {
+            mol: "Кальцій має силу 2, група селенату SeO₄ — силу 2. Вони ідеально підходять один одному. Формула солі: CaSeO₄ (індекси 1 і 1). Але перед водою обов'язково постав велику 2!",
+            full: "Зліва кислота дає 2H⁺, а основа дає 2OH⁻. Кальцій та селенат записуються з коефіцієнтами 1.",
+            short: "Фінальний крок нейтралізації: два йони водню та два гідроксид-іони збираються у дві молекули води."
+        },
+        mol: { text: "[m0]Ca(OH)₂ + [m1]H₂SeO₄ → [m2]Ca[i0](SeO₄)[i1] + [m3]H₂O", ans: [1,1,1,2,1,1] },
+        full: { text: "[f0]Ca²⁺ + [f1]OH⁻ + [f2]H⁺ + [f3]SeO₄²⁻ → [f4]Ca²⁺ + [f5]SeO₄²⁻ + [f6]H₂O", ans: [1,2,2,1,1,1,2] },
+        short: { text: "[s0]H⁺ + [s1]OH⁻ → [s2]H₂O", ans: [2,2,2] }
+    }
+];
+
+let currentTaskIdx = 0;
+let currentStep = 'mol'; // 'mol', 'full', 'short'
+
+function loadTask(idx) {
+    const task = db[idx];
+    currentStep = 'mol';
+    
+    document.getElementById("taskCategory").innerText = task.cat;
+    document.getElementById("taskTitle").innerText = `Задача ${idx + 1} з ${db.length}`;
+    document.getElementById("taskDescription").innerText = task.desc;
+    
+    document.getElementById("block-mol").classList.add("active");
+    document.getElementById("block-full").classList.remove("active");
+    document.getElementById("block-short").classList.remove("active");
+    document.getElementById("successBanner").style.display = "none";
+    document.getElementById("checkBtn").style.display = "inline-block";
+    
+    document.getElementById("hint-mol").style.display = "none";
+    document.getElementById("hint-full").style.display = "none";
+    document.getElementById("hint-short").style.display = "none";
+    
+    document.getElementById("hint-mol").innerText = task.hints.mol;
+    document.getElementById("hint-full").innerText = task.hints.full;
+    document.getElementById("hint-short").innerText = task.hints.short;
+    
+    renderFormula("html-mol", task.mol.text, "mol");
+    renderFormula("html-full", task.full.text, "full");
+    renderFormula("html-short", task.short.text, "short");
+    
+    document.getElementById("prevBtn").disabled = idx === 0;
+    document.getElementById("nextBtn").disabled = idx === db.length - 1;
+    
+    document.getElementById("progressFill").style.width = `${((idx + 1) / db.length) * 100}%`;
+}
+
+function renderFormula(containerId, text, stepName) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    
+    // Розбиваємо текст за маркерами інпутів на кшталт [m0], [i1], [f2], [s0]
+    const parts = text.split(/\[[mifsd]\d+\]/);
+    const matches = text.match(/\[([mifsd])(\d+)\]/g);
+    
+    parts.forEach((part, i) => {
+        let formattedPart = part
+            .replace(/([A-Za-z\(\)])(\d+)/g, '$1<sub>$2</sub>')
+            .replace(/(\d+)([\+\-])/g, '<sup>$1$2</sup>')
+            .replace(/([\+\-])/g, '<sup>$1</sup>');
+            
+        const span = document.createElement("span");
+        span.innerHTML = formattedPart;
+        container.appendChild(span);
+        
+        if (matches && i < matches.length) {
+            const match = matches[i];
+            const isIndex = match.includes('i');
+            
+            const input = document.createElement("input");
+            input.type = "number";
+            input.inputMode = "numeric";
+            input.pattern = "[0-9]*";
+            input.min = "1";
+            input.id = `input-${stepName}-${i}`;
+            
+            if (isIndex) {
+                input.classList.add("index-input");
+                input.placeholder = "1";
+            } else {
+                input.placeholder = "1";
+            }
+            container.appendChild(input);
+        }
+    });
+}
+
+function toggleHint(id) {
+    const hint = document.getElementById(id);
+    hint.style.display = hint.style.display === "block" ? "none" : "block";
+}
+
+function checkCurrentStep() {
+    const task = db[currentTaskIdx];
+    const stepData = task[currentStep];
+    let allCorrect = true;
+    
+    for (let i = 0; i < stepData.ans.length; i++) {
+        const input = document.getElementById(`input-${currentStep}-${i}`);
+        let userVal = parseInt(input.value);
+        if (isNaN(userVal)) {
+            userVal = 1; // Якщо поле порожнє, вважаємо його за 1
+        }
+        
+        if (userVal === stepData.ans[i]) {
+            input.classList.remove("wrong");
+            input.classList.add("correct");
+            input.disabled = true;
+        } else {
+            input.classList.add("wrong");
+            allCorrect = false;
+        }
+    }
+    
+    if (allCorrect) {
+        if (currentStep === 'mol') {
+            currentStep = 'full';
+            document.getElementById("block-full").classList.add("active");
+            document.getElementById("block-full").scrollIntoView({ behavior: 'smooth' });
+        } else if (currentStep === 'full') {
+            currentStep = 'short';
+            document.getElementById("block-short").classList.add("active");
+            document.getElementById("block-short").scrollIntoView({ behavior: 'smooth' });
+        } else if (currentStep === 'short') {
+            document.getElementById("successBanner").style.display = "block";
+            document.getElementById("checkBtn").style.display = "none";
+        }
+    }
+}
+
+function changeTask(dir) {
+    currentTaskIdx += dir;
+    if (currentTaskIdx < 0) currentTaskIdx = 0;
+    if (currentTaskIdx >= db.length) currentTaskIdx = db.length - 1;
+    loadTask(currentTaskIdx);
+}
+
+loadTask(0);
+</script>
+
+</body>
+</html>
