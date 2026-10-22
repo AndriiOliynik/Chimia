@@ -190,6 +190,27 @@
             background-color: #cccccc !important;
             cursor: not-allowed;
         }
+        .site-menu {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+
+.site-menu a {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #e2eafc;
+  color: #2b4c7e;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.site-menu a:hover {
+  background: #cbdafa;
+}
         .success-banner {
             display: none;
             background-color: #d1fae5;
@@ -207,7 +228,10 @@
     </style>
 </head>
 <body>
-
+<nav class="site-menu">
+  <a href="./index.html">🧪 Хімічний тренажер</a>
+  <a href="./reakcje.html">⚗️ Reakcje chemiczne</a>
+</nav>
 <div class="container">
     <h1>🧪 Хімічний Тренажер</h1>
     <div class="subtitle">Порожнє поле автоматично вважається як 1</div>
