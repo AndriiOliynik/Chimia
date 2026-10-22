@@ -95,7 +95,8 @@ neutral: {name:"Reakcje zobojętniania", intro:`<p><b>Co się dzieje?</b> Kwas r
 precip: {name:"Reakcje strącania osadów", intro:`<p><b>Co się dzieje?</b> Mieszamy dwa roztwory. Ich jony łączą się, a jeden z produktów jest trudno rozpuszczalny w wodzie. Powstaje osad, oznaczany strzałką <b>↓</b>.</p>
 <div class="example"><b>Przykład z notatek:</b><div class="eq">NaCl + AgNO₃ → AgCl↓ + NaNO₃</div><div class="eq ion">Ag⁺ + Cl⁻ → AgCl↓</div><p class="note">Na⁺ i NO₃⁻ są jonami obserwatorami — nie zmieniają się, więc znikają w równaniu skróconym.</p></div>
 <div class="example"><b>Przykład z notatek:</b><div class="eq">BaBr₂ + K₂SO₄ → BaSO₄↓ + 2KBr</div><div class="eq ion">Ba²⁺ + SO₄²⁻ → BaSO₄↓</div></div>
-<p><b>Jak rozwiązywać?</b> Najpierw zamień „partnerów” jonów, następnie poprawnie zapisz wzór soli (ładunek całkowity musi wynosić zero), zbilansuj równanie i sprawdź, czy powstaje osad. W równaniu jonowym skróconym zostaw tylko jony, które rzeczywiście tworzą osad.</p>
+<p><b>Jak rozwiązywać?</b> 1. Rozdziel sole na kationy i aniony. 2. Zamień partnerów: kation pierwszej soli połącz z anionem drugiej, a drugi kation — z pierwszym anionem. 3. Ułóż wzory soli tak, aby suma ładunków wynosiła zero: np. Al³⁺ i SO₄²⁻ dają Al₂(SO₄)₃ (najmniejszy stosunek 2:3); Ca²⁺ i Cl⁻ dają CaCl₂. Nie zmieniaj indeksów we wzorach jonów wieloatomowych — w razie potrzeby ujmij je w nawias. 4. Zbilansuj równanie współczynnikami.</p>
+<p><b>Co i dlaczego wytrąca się jako osad?</b> Osadem jest produkt trudno rozpuszczalny w wodzie. Sprawdź reguły rozpuszczalności: wszystkie azotany(V) są rozpuszczalne; większość soli sodu, potasu i amonu jest rozpuszczalna; wiele węglanów, fosforanów, siarczków i wodorotlenków jest trudno rozpuszczalnych (są wyjątki). Zapisz <b>↓</b> przy produkcie, który nie pozostaje w roztworze. Jony, które nie tworzą osadu, pozostają w roztworze i są jonami obserwatorami.</p>
 <p><b>Jeszcze przykład z notatek:</b> <span class="eq">2FeCl₃ + 3K₂CrO₄ → Fe₂(CrO₄)₃↓ + 6KCl</span>; skrócone: <span class="eq">2Fe³⁺ + 3CrO₄²⁻ → Fe₂(CrO₄)₃↓</span>.</p>`},
 hydro: {name:"Hydroliza soli", intro:`<p><b>Co się dzieje?</b> Jony soli reagują z wodą. To może wytworzyć jony H₃O⁺ (roztwór kwaśny) albo OH⁻ (roztwór zasadowy).</p>
 <div class="grid"><div class="rule"><b>Sól mocnego kwasu i mocnej zasady</b><p>Zwykle nie ulega hydrolizie; pH ≈ 7.</p><div class="eq">NaCl — brak hydrolizy</div></div><div class="rule"><b>Mocny kwas + słaba zasada</b><p>Kation reaguje z wodą; roztwór jest kwaśny.</p><div class="eq">Al³⁺ + 3H₂O ⇌ Al(OH)₃↓ + 3H⁺</div></div><div class="rule"><b>Słaby kwas + mocna zasada</b><p>Anion reaguje z wodą; powstają jony OH⁻, więc roztwór jest zasadowy.</p><div class="eq">NO₂⁻ + H₂O ⇌ HNO₂ + OH⁻</div></div></div>
@@ -236,9 +237,10 @@ function renderWorkspace(item){
     }));
   } else {
     let prompt = mode==="precip"
-      ? '<p><b>Wpisz całe równanie reakcji</b> (z produktami i współczynnikami):</p><textarea class="answer-input" id="writtenAnswer" rows="3" placeholder="Np. NaCl + AgNO₃ → AgCl↓ + NaNO₃"></textarea><p><b>Co powstaje jako osad?</b> Wpisz wzór substancji i zaznacz strzałką w dół (↓).</p><input class="answer-input" id="precipitateAnswer" placeholder="Wzór osadu, np. AgCl↓">'
+      ? '<p><b>Dokończ równanie:</b> dopisz tylko produkty po strzałce. Warunki reakcji są już wpisane.</p><div class="eq" id="reactionPrefix"></div><textarea class="answer-input" id="writtenAnswer" rows="2" placeholder="Np. AgCl↓ + NaNO₃"></textarea><p><b>Co wypada w osadzie?</b> Wpisz wzór osadu (strzałka ↓ jest dodawana automatycznie przy sprawdzaniu).</p><input class="answer-input" id="precipitateAnswer" placeholder="Np. AgCl"><p class="note">Pamiętaj: najpierw zamień jony, potem ułóż wzory soli z uwzględnieniem ładunków i dobierz współczynniki. Kolejność produktów po prawej stronie nie ma znaczenia.</p>'
       : '<p><b>Wpisz równanie hydrolizy lub wyjaśnienie odczynu</b> zgodnie z poleceniem:</p><textarea class="answer-input" id="writtenAnswer" rows="3" placeholder="Wpisz odpowiedź tutaj"></textarea>';
     workspace.innerHTML=prompt;
+    if(mode==="precip") document.getElementById("reactionPrefix").textContent=item[0]+" →";
   }
 }
 function renderAll(){
@@ -275,12 +277,17 @@ document.getElementById("checkAnswer").onclick=()=>{
   } else if(mode==="precip"){
     const written=document.getElementById("writtenAnswer")?.value||"";
     const precip=document.getElementById("precipitateAnswer")?.value||"";
-    const expectedPrecip=(item[2].match(/→\s*(.*?)↓/)||[])[1]||"";
-    const productFormula=expectedPrecip.trim().split(/\s+/).pop();
-    const equationOK=normalize(written).includes(normalize(item[2]).replace(/↓/g,""));
-    const precipOK=normalize(precip).includes(normalize(productFormula));
+    const expectedRight=(item[2].split(/→|⇌/)[1]||"").trim();
+    const splitProducts=str=>str.replace(/[↓↑]/g,"").split("+").map(x=>x.trim()).filter(Boolean).map(x=>{
+      const m=x.match(/^(\d+)\s*(.*)$/); return {coef:m?Number(m[1]):1, formula:normalize(m?m[2]:x)};
+    }).sort((a,b)=>a.formula.localeCompare(b.formula));
+    const expectedProducts=splitProducts(expectedRight), typedProducts=splitProducts(written);
+    const equationOK=expectedProducts.length===typedProducts.length && expectedProducts.every((x,i)=>x.formula===typedProducts[i].formula&&x.coef===typedProducts[i].coef);
+    const precipFormula=(item[2].match(/→\s*(.*?)↓/)||[])[1]||"";
+    const expectedPrecip=(precipFormula.split("+").map(x=>x.trim()).pop()||"").replace(/^\d+\s*/,"");
+    const precipOK=normalize(precip).replace(/[↓↑]/g,"")===normalize(expectedPrecip).replace(/[↓↑]/g,"");
     ok=equationOK&&precipOK;
-    feedback.textContent=ok?"Dobrze! Równanie i osad zapisane poprawnie.":"Sprawdź zapis równania oraz wzór osadu ze strzałką ↓.";
+    feedback.textContent=ok?"Dobrze! Produkty i osad są poprawne — kolejność produktów nie ma znaczenia.":"Sprawdź wzory i współczynniki produktów oraz wskaż trudno rozpuszczalny produkt jako osad.";
   } else {
     const written=document.getElementById("writtenAnswer")?.value||"";
     const key=(item[2]+" "+item[3]).split(/[;,.]/).map(normalize).filter(s=>s.length>3);
