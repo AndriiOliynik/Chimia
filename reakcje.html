@@ -36,10 +36,10 @@ footer{padding:16px;text-align:center;color:#687386;font-size:.85rem}
 <script>
 // Aby dodać stronę do menu, dodaj kolejny obiekt do tablicy PAGES poniżej.
 const PAGES = [
-  { title: "Chemiczny trener — równania", url: "index_z_menu.html" },
-  { title: "Reakcje: zobojętnianie, strącanie, hydroliza", url: "trener_chemia_reakcje.html" }
+  { title: "Chemiczny trener — równania", url: "index.html" },
+  { title: "Reakcje: zobojętnianie, strącanie, hydroliza", url: "reakcje.html" }
 ];
-const currentPage = location.pathname.split("/").pop() || "index_z_menu.html";
+const currentPage = location.pathname.split("/").pop() || "index.html";
 const menu = document.getElementById("siteMenu");
 PAGES.forEach(page => {
   const link = document.createElement("a");
