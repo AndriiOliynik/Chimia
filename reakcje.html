@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trener chemii — reakcje</title>
+<style>
+:root{--blue:#315c9b;--bg:#f3f6fb;--ink:#202b3c;--green:#16794b;--red:#b42318;--line:#d9e2ef}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:980px;margin:auto;padding:18px}h1{font-size:clamp(1.5rem,4vw,2.2rem);margin:.2em 0;color:var(--blue)}h2{font-size:1.25rem;margin:.2em 0 .5em}
+p{margin:.45em 0}.muted{color:#5b6678;font-size:.94rem}.hero,.panel,.task{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;margin:12px 0;box-shadow:0 4px 15px #1d355710}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.tab,button,select{font:inherit;border-radius:10px;border:1px solid #b9c8dc;padding:9px 12px;background:white;color:var(--ink);cursor:pointer}
+.tab.active,button.primary{background:var(--blue);color:white;border-color:var(--blue)}button:hover,.tab:hover{filter:brightness(.97)}button:disabled{opacity:.45;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.rule{background:#f7f9fc;border-left:4px solid var(--blue);padding:12px;border-radius:8px}
+.example{padding:10px;border:1px solid var(--line);border-radius:10px;margin:8px 0;background:#fbfcff}.eq{font-weight:650;font-size:1.06rem;overflow-wrap:anywhere}.ion{color:#2458a6}.note{color:#526075;font-size:.92rem}
+.progress{height:8px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin:10px 0}.progress span{display:block;height:100%;background:#2e9d70;width:0}
+.taskhead{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.badge{font-size:.8rem;background:#eaf0fb;color:#244b86;padding:4px 9px;border-radius:20px}
+.answer{display:none;margin-top:12px;padding:12px;background:#eef8f2;border:1px solid #b6e0c5;border-radius:10px}.answer.show{display:block}.task-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.small{font-size:.85rem}.warning{background:#fff7e6;border-left:4px solid #d99a22;padding:12px;border-radius:8px}
+footer{padding:16px;text-align:center;color:#687386;font-size:.85rem}
+@media(max-width:560px){main{padding:10px}.hero,.panel,.task{padding:14px}.eq{font-size:1rem}}
+</style></head>
+<body><main>
+<section class="hero">
+<h1>🧪 Trener chemii: Reakcje</h1>
+<p><b>Reakcje zobojętniania • strącania osadów • hydroliza soli</b></p>
+<p class="muted">Proste wyjaśnienia po polsku, przykłady z notatek i 90 zadań do ćwiczeń. W zadaniach najpierw spróbuj samodzielnie, a potem kliknij „Pokaż odpowiedź”.</p>
+<div class="tabs" id="tabs"></div>
+<div class="progress"><span id="progress"></span></div>
+<div class="muted" id="count">Zadanie 1 z 30</div>
+</section>
+<section class="panel" id="lesson"></section>
+<section class="task" id="practice">
+<div class="taskhead"><h2 id="taskTitle">Zadanie</h2><span class="badge" id="taskBadge"></span></div>
+<p id="question"></p><div class="example"><div class="eq" id="promptEq"></div></div>
+<p class="note" id="taskHint"></p>
+<div class="answer" id="answer"><b>Odpowiedź:</b><div class="eq" id="answerEq"></div><p id="answerNote"></p></div>
+<div class="task-buttons"><button class="primary" id="show">Pokaż odpowiedź</button><button id="prev">← Poprzednie</button><button id="next">Następne →</button><button id="shuffle">Losuj zadanie</button></div>
+</section>
+<section class="panel"><h2>Krótka ściąga przed sprawdzianem</h2>
+<div class="grid">
+<div class="rule"><b>Zobojętnianie</b><p>Kwas + zasada → sól + woda.</p><div class="eq">H⁺ + OH⁻ → H₂O</div></div>
+<div class="rule"><b>Strącanie osadu</b><p>Dwa roztwory mieszamy. Jeśli powstaje trudno rozpuszczalna sól, pojawia się osad ↓.</p><div class="eq">Ag⁺ + Cl⁻ → AgCl↓</div></div>
+<div class="rule"><b>Hydroliza</b><p>Jony soli reagują z wodą. Roztwór może być kwaśny, zasadowy albo obojętny.</p><div class="eq">CH₃COO⁻ + H₂O ⇌ CH₃COOH + OH⁻</div></div>
+</div><div class="warning"><b>Ważne:</b> w równaniu jonowym pełnym rozpisuj na jony dobrze rozpuszczalne, mocne elektrolity. Osadu, wody i słabych elektrolitów nie rozpisuj na jony. W równaniu skróconym usuń jony obserwatorzy, które są po obu stronach bez zmian.</div>
+</section>
+<footer>Materiał do samodzielnej nauki. Strzałka ↓ oznacza osad, a ⇌ — reakcję odwracalną.</footer>
+</main>
+<script>
+const lessons = {
+neutral: {name:"Reakcje zobojętniania", intro:`<p><b>Co się dzieje?</b> Kwas reaguje z zasadą. Powstają sól i woda. Najważniejsza część reakcji to połączenie jonu wodorowego z jonem wodorotlenkowym.</p>
+<div class="example"><b>Najważniejszy zapis jonowy skrócony:</b><div class="eq">H⁺ + OH⁻ → H₂O</div></div>
+<div class="grid"><div class="rule"><b>Krok 1.</b><p>Rozpoznaj kwas (zwykle zaczyna się od H) i zasadę (zawiera grupę OH).</p></div><div class="rule"><b>Krok 2.</b><p>Ułóż sól z kationu zasady i reszty kwasowej.</p></div><div class="rule"><b>Krok 3.</b><p>Dobierz współczynniki. Liczba atomów po lewej i prawej musi być taka sama.</p></div></div>
+<p><b>Przykład z notatek:</b> <span class="eq">HNO₃ + LiOH → LiNO₃ + H₂O</span></p>
+<p><b>Przykład z notatek:</b> <span class="eq">2HNO₃ + Ca(OH)₂ → Ca(NO₃)₂ + 2H₂O</span></p>
+<p><b>Jeszcze jeden przykład:</b> <span class="eq">H₂SO₄ + Mg(OH)₂ → MgSO₄ + 2H₂O</span></p>
+<p class="note">Nie zawsze roztwór po reakcji ma pH = 7 — zależy to m.in. od ilości reagentów i właściwości soli. W typowym szkolnym przykładzie mocnego kwasu i mocnej zasady w proporcji stechiometrycznej otrzymujemy roztwór obojętny.</p>`},
+precip: {name:"Reakcje strącania osadów", intro:`<p><b>Co się dzieje?</b> Mieszamy dwa roztwory. Ich jony łączą się, a jeden z produktów jest trudno rozpuszczalny w wodzie. Powstaje osad, oznaczany strzałką <b>↓</b>.</p>
+<div class="example"><b>Przykład z notatek:</b><div class="eq">NaCl + AgNO₃ → AgCl↓ + NaNO₃</div><div class="eq ion">Ag⁺ + Cl⁻ → AgCl↓</div><p class="note">Na⁺ i NO₃⁻ są jonami obserwatorami — nie zmieniają się, więc znikają w równaniu skróconym.</p></div>
+<div class="example"><b>Przykład z notatek:</b><div class="eq">BaBr₂ + K₂SO₄ → BaSO₄↓ + 2KBr</div><div class="eq ion">Ba²⁺ + SO₄²⁻ → BaSO₄↓</div></div>
+<p><b>Jak rozwiązywać?</b> Najpierw zamień „partnerów” jonów, następnie poprawnie zapisz wzór soli (ładunek całkowity musi wynosić zero), zbilansuj równanie i sprawdź, czy powstaje osad. W równaniu jonowym skróconym zostaw tylko jony, które rzeczywiście tworzą osad.</p>
+<p><b>Jeszcze przykład z notatek:</b> <span class="eq">2FeCl₃ + 3K₂CrO₄ → Fe₂(CrO₄)₃↓ + 6KCl</span>; skrócone: <span class="eq">2Fe³⁺ + 3CrO₄²⁻ → Fe₂(CrO₄)₃↓</span>.</p>`},
+hydro: {name:"Hydroliza soli", intro:`<p><b>Co się dzieje?</b> Jony soli reagują z wodą. To może wytworzyć jony H₃O⁺ (roztwór kwaśny) albo OH⁻ (roztwór zasadowy).</p>
+<div class="grid"><div class="rule"><b>Sól mocnego kwasu i mocnej zasady</b><p>Zwykle nie ulega hydrolizie; pH ≈ 7.</p><div class="eq">NaCl — brak hydrolizy</div></div><div class="rule"><b>Mocny kwas + słaba zasada</b><p>Kation reaguje z wodą; roztwór jest kwaśny.</p><div class="eq">Al³⁺ + 3H₂O ⇌ Al(OH)₃↓ + 3H⁺</div></div><div class="rule"><b>Słaby kwas + mocna zasada</b><p>Anion reaguje z wodą; powstają jony OH⁻, więc roztwór jest zasadowy.</p><div class="eq">NO₂⁻ + H₂O ⇌ HNO₂ + OH⁻</div></div></div>
+<p><b>Przykład z notatek:</b> azotan(III) wapnia, Ca(NO₂)₂ — anion NO₂⁻ pochodzi od słabego kwasu HNO₂:</p><div class="eq">NO₂⁻ + H₂O ⇌ HNO₂ + OH⁻</div><p>Dlatego roztwór ma odczyn zasadowy (pH &gt; 7).</p>
+<p><b>Przykład z notatek:</b> Al(NO₃)₃ — kation Al³⁺ ulega hydrolizie, a roztwór ma odczyn kwaśny. W szkolnym uproszczeniu zapisujemy:</p><div class="eq">Al³⁺ + 3H₂O ⇌ Al(OH)₃↓ + 3H⁺</div>
+<p class="note">Zapis hydrolizy bywa w podręcznikach uproszczony. Dla jonów metali, zwłaszcza Al³⁺, rzeczywisty proces zachodzi etapami.</p>`}
+};
+const data = {
+neutral:[
+["HCl + NaOH","Ułóż równanie cząsteczkowe.","HCl + NaOH → NaCl + H₂O","Współczynniki: 1 : 1 : 1 : 1."],
+["HNO₃ + LiOH","Ułóż równanie cząsteczkowe.","HNO₃ + LiOH → LiNO₃ + H₂O","Przykład z notatek. Sól: LiNO₃."],
+["H₂SO₄ + 2KOH","Dokończ i zbilansuj równanie.","H₂SO₄ + 2KOH → K₂SO₄ + 2H₂O","Kwas ma dwa atomy wodoru kwasowego."],
+["2HNO₃ + Ca(OH)₂","Dokończ i zbilansuj równanie.","2HNO₃ + Ca(OH)₂ → Ca(NO₃)₂ + 2H₂O","Przykład z notatek."],
+["H₂SO₄ + Mg(OH)₂","Dokończ równanie.","H₂SO₄ + Mg(OH)₂ → MgSO₄ + 2H₂O","Dwa H⁺ łączą się z dwoma OH⁻."],
+["3HCl + Al(OH)₃","Dokończ równanie.","3HCl + Al(OH)₃ → AlCl₃ + 3H₂O","Al(OH)₃ zawiera trzy grupy OH."],
+["HBr + KOH","Dokończ równanie.","HBr + KOH → KBr + H₂O","Sól powstaje z K⁺ i Br⁻."],
+["2HBr + Ba(OH)₂","Dokończ równanie.","2HBr + Ba(OH)₂ → BaBr₂ + 2H₂O","Bar ma ładunek +2."],
+["2HCl + Ca(OH)₂","Dokończ równanie.","2HCl + Ca(OH)₂ → CaCl₂ + 2H₂O","Potrzebne są dwa jony Cl⁻."],
+["2HNO₃ + Mg(OH)₂","Dokończ równanie.","2HNO₃ + Mg(OH)₂ → Mg(NO₃)₂ + 2H₂O","Magnez ma ładunek +2."],
+["2HCl + Mg(OH)₂","Dokończ równanie.","2HCl + Mg(OH)₂ → MgCl₂ + 2H₂O","Dopasuj liczbę jonów chlorkowych."],
+["H₂SO₄ + 2NaOH","Dokończ równanie.","H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O","Sól to siarczan(VI) sodu."],
+["H₃PO₄ + 3NaOH","Dokończ równanie.","H₃PO₄ + 3NaOH → Na₃PO₄ + 3H₂O","To pełne zobojętnienie kwasu trójprotonowego."],
+["H₃PO₄ + 3KOH","Dokończ równanie.","H₃PO₄ + 3KOH → K₃PO₄ + 3H₂O","Współczynniki 1:3:1:3."],
+["2HCl + Ba(OH)₂","Dokończ równanie.","2HCl + Ba(OH)₂ → BaCl₂ + 2H₂O","Dwa H⁺ neutralizują dwa OH⁻."],
+["HCl + KOH","Dokończ równanie.","HCl + KOH → KCl + H₂O","Klasyczny przykład."],
+["HNO₃ + KOH","Dokończ równanie.","HNO₃ + KOH → KNO₃ + H₂O","Azotan(V) potasu jest solą."],
+["2HF + Ca(OH)₂","Dokończ równanie.","2HF + Ca(OH)₂ → CaF₂ + 2H₂O","Wzór soli wynika z Ca²⁺ i F⁻."],
+["2HCl + Fe(OH)₂","Dokończ równanie.","2HCl + Fe(OH)₂ → FeCl₂ + 2H₂O","Żelazo(II) ma ładunek +2."],
+["3HNO₃ + Al(OH)₃","Dokończ równanie.","3HNO₃ + Al(OH)₃ → Al(NO₃)₃ + 3H₂O","Przykład w stylu notatek."],
+["2HCl + Cu(OH)₂","Dokończ równanie.","2HCl + Cu(OH)₂ → CuCl₂ + 2H₂O","Wodorotlenek miedzi(II) ma dwie grupy OH."],
+["H₂SO₄ + 2LiOH","Dokończ równanie.","H₂SO₄ + 2LiOH → Li₂SO₄ + 2H₂O","Siarczan(VI) litu."],
+["2HNO₃ + Ba(OH)₂","Dokończ równanie.","2HNO₃ + Ba(OH)₂ → Ba(NO₃)₂ + 2H₂O","Bar tworzy jon Ba²⁺."],
+["HBr + NaOH","Dokończ równanie.","HBr + NaOH → NaBr + H₂O","Sól: bromek sodu."],
+["2HCl + Ni(OH)₂","Dokończ równanie.","2HCl + Ni(OH)₂ → NiCl₂ + 2H₂O","Nikiel(II) ma ładunek +2."],
+["3HCl + Fe(OH)₃","Dokończ równanie.","3HCl + Fe(OH)₃ → FeCl₃ + 3H₂O","Żelazo(III) ma ładunek +3."],
+["H₂SO₄ + Ca(OH)₂","Dokończ równanie.","H₂SO₄ + Ca(OH)₂ → CaSO₄ + 2H₂O","Dwa H⁺ i dwa OH⁻ dają 2H₂O."],
+["2HNO₃ + Zn(OH)₂","Dokończ równanie.","2HNO₃ + Zn(OH)₂ → Zn(NO₃)₂ + 2H₂O","Cynk tworzy Zn²⁺."],
+["HCl + LiOH","Dokończ równanie.","HCl + LiOH → LiCl + H₂O","Sól: chlorek litu."],
+["3H₂SO₄ + 2Al(OH)₃","Uzupełnij produkty i zbilansuj.","3H₂SO₄ + 2Al(OH)₃ → Al₂(SO₄)₃ + 6H₂O","Al₂(SO₄)₃ zawiera dwa Al i trzy grupy siarczanowe."]
+],
+precip:[
+["NaCl + AgNO₃","Zapisz produkty i zaznacz osad.","NaCl + AgNO₃ → AgCl↓ + NaNO₃","Skrócone jonowe: Ag⁺ + Cl⁻ → AgCl↓."],
+["BaBr₂ + K₂SO₄","Zapisz produkty i zbilansuj.","BaBr₂ + K₂SO₄ → BaSO₄↓ + 2KBr","Skrócone jonowe: Ba²⁺ + SO₄²⁻ → BaSO₄↓."],
+["AgNO₃ + KCl","Zapisz równanie.","AgNO₃ + KCl → AgCl↓ + KNO₃","Powstaje biały osad AgCl."],
+["CaCl₂ + Na₂CO₃","Zapisz równanie.","CaCl₂ + Na₂CO₃ → CaCO₃↓ + 2NaCl","Skrócone jonowe: Ca²⁺ + CO₃²⁻ → CaCO₃↓."],
+["CuSO₄ + 2NaOH","Zapisz równanie.","CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄","Skrócone jonowe: Cu²⁺ + 2OH⁻ → Cu(OH)₂↓."],
+["FeCl₃ + 3NaOH","Zapisz równanie.","FeCl₃ + 3NaOH → Fe(OH)₃↓ + 3NaCl","Powstaje brunatny osad Fe(OH)₃."],
+["2FeCl₃ + 3K₂CrO₄","Zapisz równanie z notatek.","2FeCl₃ + 3K₂CrO₄ → Fe₂(CrO₄)₃↓ + 6KCl","Skrócone jonowe: 2Fe³⁺ + 3CrO₄²⁻ → Fe₂(CrO₄)₃↓."],
+["Pb(NO₃)₂ + 2KI","Zapisz równanie.","Pb(NO₃)₂ + 2KI → PbI₂↓ + 2KNO₃","Powstaje żółty osad PbI₂."],
+["BaCl₂ + Na₂SO₄","Zapisz równanie.","BaCl₂ + Na₂SO₄ → BaSO₄↓ + 2NaCl","Skrócone jonowe: Ba²⁺ + SO₄²⁻ → BaSO₄↓."],
+["MgCl₂ + 2NaOH","Zapisz równanie.","MgCl₂ + 2NaOH → Mg(OH)₂↓ + 2NaCl","Skrócone jonowe: Mg²⁺ + 2OH⁻ → Mg(OH)₂↓."],
+["AlCl₃ + 3KOH","Zapisz równanie.","AlCl₃ + 3KOH → Al(OH)₃↓ + 3KCl","Powstaje osad Al(OH)₃."],
+["ZnSO₄ + 2NaOH","Zapisz równanie.","ZnSO₄ + 2NaOH → Zn(OH)₂↓ + Na₂SO₄","Skrócone jonowe: Zn²⁺ + 2OH⁻ → Zn(OH)₂↓."],
+["Ca(NO₃)₂ + Na₂CO₃","Zapisz równanie.","Ca(NO₃)₂ + Na₂CO₃ → CaCO₃↓ + 2NaNO₃","Węglan wapnia jest trudno rozpuszczalny."],
+["SrCl₂ + Na₂SO₄","Zapisz równanie.","SrCl₂ + Na₂SO₄ → SrSO₄↓ + 2NaCl","Powstaje osad siarczanu(VI) strontu."],
+["3AgNO₃ + Na₃PO₄","Zapisz równanie.","3AgNO₃ + Na₃PO₄ → Ag₃PO₄↓ + 3NaNO₃","Fosforan(V) srebra tworzy osad."],
+["FeSO₄ + 2NaOH","Zapisz równanie.","FeSO₄ + 2NaOH → Fe(OH)₂↓ + Na₂SO₄","Osad Fe(OH)₂ jest zielonkawy."],
+["NiCl₂ + 2KOH","Zapisz równanie.","NiCl₂ + 2KOH → Ni(OH)₂↓ + 2KCl","Powstaje trudno rozpuszczalny wodorotlenek."],
+["CoCl₂ + 2NaOH","Zapisz równanie.","CoCl₂ + 2NaOH → Co(OH)₂↓ + 2NaCl","Skrócone jonowe: Co²⁺ + 2OH⁻ → Co(OH)₂↓."],
+["2AgNO₃ + Na₂S","Zapisz równanie.","2AgNO₃ + Na₂S → Ag₂S↓ + 2NaNO₃","Siarczek srebra jest osadem."],
+["Cd(NO₃)₂ + Na₂S","Zapisz równanie.","Cd(NO₃)₂ + Na₂S → CdS↓ + 2NaNO₃","Powstaje osad CdS."],
+["Ba(NO₃)₂ + Na₂CO₃","Zapisz równanie.","Ba(NO₃)₂ + Na₂CO₃ → BaCO₃↓ + 2NaNO₃","Węglan baru jest trudno rozpuszczalny."],
+["2AgNO₃ + Na₂CO₃","Zapisz równanie.","2AgNO₃ + Na₂CO₃ → Ag₂CO₃↓ + 2NaNO₃","Sprawdź indeks przy srebrze."],
+["Ca(NO₃)₂ + Na₃PO₄","Zapisz równanie.","3Ca(NO₃)₂ + 2Na₃PO₄ → Ca₃(PO₄)₂↓ + 6NaNO₃","Bilans wymaga 3 jonów Ca²⁺ i 2 jonów PO₄³⁻."],
+["2FeCl₃ + 3Na₂CO₃","Zapisz równanie osadu w uproszczeniu szkolnym.","2FeCl₃ + 3Na₂CO₃ → Fe₂(CO₃)₃↓ + 6NaCl","To typowy schemat wymiany jonowej; w wodzie układ może być bardziej złożony."],
+["Pb(NO₃)₂ + Na₂SO₄","Zapisz równanie.","Pb(NO₃)₂ + Na₂SO₄ → PbSO₄↓ + 2NaNO₃","Siarczan ołowiu(II) wytrąca się jako osad."],
+["2AgNO₃ + Na₂CrO₄","Zapisz równanie.","2AgNO₃ + Na₂CrO₄ → Ag₂CrO₄↓ + 2NaNO₃","Chromian(VI) srebra tworzy osad."],
+["CuCl₂ + Na₂S","Zapisz równanie.","CuCl₂ + Na₂S → CuS↓ + 2NaCl","Skrócone jonowe: Cu²⁺ + S²⁻ → CuS↓."],
+["MnCl₂ + Na₂S","Zapisz równanie.","MnCl₂ + Na₂S → MnS↓ + 2NaCl","Powstaje trudno rozpuszczalny siarczek."],
+["2AlCl₃ + 3Na₂S","Zapisz produkty w szkolnym uproszczeniu.","2AlCl₃ + 3Na₂S → Al₂S₃↓ + 6NaCl","Uwaga: w wodzie Al₂S₃ reaguje z wodą; to uproszczony schemat wymiany."],
+["BaCl₂ + Na₂CO₃","Zapisz równanie.","BaCl₂ + Na₂CO₃ → BaCO₃↓ + 2NaCl","Skrócone jonowe: Ba²⁺ + CO₃²⁻ → BaCO₃↓."]
+],
+hydro:[
+["NaCl","Czy sól ulega hydrolizie? Podaj odczyn.","NaCl — hydroliza nie zachodzi; pH ≈ 7","Pochodzi od mocnego kwasu HCl i mocnej zasady NaOH."],
+["KNO₃","Czy sól ulega hydrolizie? Podaj odczyn.","KNO₃ — hydroliza nie zachodzi; pH ≈ 7","Mocny kwas HNO₃ i mocna zasada KOH."],
+["NaNO₃","Podaj odczyn roztworu.","NaNO₃ — hydroliza nie zachodzi; pH ≈ 7","Na⁺ i NO₃⁻ praktycznie nie reagują z wodą."],
+["CH₃COONa","Zapisz jonową hydrolizę i odczyn.","CH₃COO⁻ + H₂O ⇌ CH₃COOH + OH⁻; pH > 7","Anion słabego kwasu octowego tworzy OH⁻."],
+["KCH₃COO","Zapisz hydrolizę.","CH₃COO⁻ + H₂O ⇌ CH₃COOH + OH⁻; pH > 7","K⁺ nie ulega hydrolizie."],
+["NaNO₂","Zapisz hydrolizę i odczyn.","NO₂⁻ + H₂O ⇌ HNO₂ + OH⁻; pH > 7","Przykład odpowiada notatkom o azotynie."],
+["Ca(NO₂)₂","Zapisz równanie jonowe hydrolizy anionu.","2NO₂⁻ + 2H₂O ⇌ 2HNO₂ + 2OH⁻; pH > 7","Przykład z notatek: powstają jony OH⁻."],
+["Na₂CO₃","Zapisz hydrolizę anionu.","CO₃²⁻ + H₂O ⇌ HCO₃⁻ + OH⁻; pH > 7","W szkolnym ujęciu anion węglanowy nadaje odczyn zasadowy."],
+["K₂S","Zapisz pierwszy etap hydrolizy.","S²⁻ + H₂O ⇌ HS⁻ + OH⁻; pH > 7","Anion pochodzi od słabego kwasu siarkowodorowego."],
+["NaF","Zapisz hydrolizę.","F⁻ + H₂O ⇌ HF + OH⁻; pH > 7","HF jest słabym kwasem."],
+["KCN","Zapisz hydrolizę anionu.","CN⁻ + H₂O ⇌ HCN + OH⁻; pH > 7","HCN jest słabym kwasem; przykład teoretyczny."],
+["Na₃PO₄","Zapisz pierwszy etap hydrolizy.","PO₄³⁻ + H₂O ⇌ HPO₄²⁻ + OH⁻; pH > 7","Anion fosforanowy reaguje z wodą."],
+["AlCl₃","Zapisz szkolny uproszczony zapis hydrolizy kationu.","Al³⁺ + 3H₂O ⇌ Al(OH)₃↓ + 3H⁺; pH < 7","Kation glinu zakwasza roztwór. Zapis jest uproszczony."],
+["Al(NO₃)₃","Podaj równanie uproszczone i odczyn.","Al³⁺ + 3H₂O ⇌ Al(OH)₃↓ + 3H⁺; pH < 7","Przykład z notatek: sól mocnego kwasu i słabej zasady."],
+["FeCl₃","Zapisz uproszczoną hydrolizę kationu.","Fe³⁺ + 3H₂O ⇌ Fe(OH)₃↓ + 3H⁺; pH < 7","Kation Fe³⁺ zakwasza roztwór."],
+["CuSO₄","Podaj odczyn i uproszczony zapis hydrolizy.","Cu²⁺ + 2H₂O ⇌ CuOH⁺ + H₃O⁺; pH < 7","Uproszczony pierwszy etap; kation miedzi(II) ulega hydrolizie."],
+["NH₄Cl","Zapisz hydrolizę kationu.","NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺; pH < 7","Jon amonowy pochodzi od słabej zasady NH₃."],
+["NH₄NO₃","Zapisz hydrolizę i odczyn.","NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺; pH < 7","Jon azotanowy(V) nie ulega hydrolizie."],
+["(NH₄)₂SO₄","Zapisz hydrolizę kationu.","NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺; pH < 7","W równaniu jonowym współczynnik przy NH₄⁺ zależy od pełnego zapisu soli."],
+["ZnCl₂","Zapisz uproszczony pierwszy etap hydrolizy.","Zn²⁺ + 2H₂O ⇌ ZnOH⁺ + H₃O⁺; pH < 7","Kation cynku(II) może zakwaszać roztwór."],
+["Fe(NO₃)₃","Podaj odczyn i uproszczoną hydrolizę.","Fe³⁺ + 3H₂O ⇌ Fe(OH)₃↓ + 3H⁺; pH < 7","Jon azotanowy jest obserwatorem."],
+["Na₂SO₃","Zapisz hydrolizę anionu.","SO₃²⁻ + H₂O ⇌ HSO₃⁻ + OH⁻; pH > 7","Anion pochodzi od słabego kwasu siarkawego."],
+["K₂HPO₄","Wskaż typowy odczyn i etap hydrolizy zasadowej.","HPO₄²⁻ + H₂O ⇌ H₂PO₄⁻ + OH⁻; roztwór zwykle zasadowy","Jon HPO₄²⁻ jest amfoteryczny; równowaga zależy od kilku etapów."],
+["NaClO","Zapisz hydrolizę anionu.","ClO⁻ + H₂O ⇌ HClO + OH⁻; pH > 7","HClO jest słabym kwasem."],
+["K₂C₂O₄","Zapisz hydrolizę anionu w uproszczeniu.","C₂O₄²⁻ + H₂O ⇌ HC₂O₄⁻ + OH⁻; pH > 7","Anion szczawianowy pochodzi od słabego kwasu."],
+["NaHCO₃","Podaj możliwe zachowanie jonu i odczyn.","HCO₃⁻ + H₂O ⇌ H₂CO₃ + OH⁻ (etap zasadowy); roztwór lekko zasadowy","HCO₃⁻ jest amfoteryczny, więc zachodzi więcej niż jedna równowaga."],
+["Mg(NO₃)₂","Podaj odczyn i uproszczony zapis.","Mg²⁺ + 2H₂O ⇌ MgOH⁺ + H₃O⁺; pH < 7 (słabo)","Hydroliza kationu jest słaba; zapis pokazuje pierwszy etap."],
+["CrCl₃","Zapisz uproszczoną hydrolizę kationu.","Cr³⁺ + 3H₂O ⇌ Cr(OH)₃↓ + 3H⁺; pH < 7","Schemat szkolny uproszczony."],
+["NaBr","Czy zachodzi hydroliza?","NaBr — hydroliza nie zachodzi; pH ≈ 7","Mocny kwas HBr i mocna zasada NaOH."],
+["Ba(NO₃)₂","Czy zachodzi hydroliza?","Ba(NO₃)₂ — hydroliza praktycznie nie zachodzi; pH ≈ 7","Mocny kwas i mocna zasada."]
+]
+};
+let mode="neutral", index=0, seen=new Set();
+const tabs=document.getElementById("tabs");
+const modes=[["neutral","Zobojętnianie"],["precip","Strącanie osadów"],["hydro","Hydroliza"]];
+function renderTabs(){tabs.innerHTML="";modes.forEach(([k,n])=>{let b=document.createElement("button");b.className="tab "+(mode===k?"active":"");b.textContent=n;b.onclick=()=>{mode=k;index=0;renderAll()};tabs.appendChild(b)})}
+function renderAll(){renderTabs();document.getElementById("lesson").innerHTML="<h2>"+lessons[mode].name+"</h2>"+lessons[mode].intro;renderTask()}
+function renderTask(){let arr=data[mode], item=arr[index];document.getElementById("taskTitle").textContent=`Zadanie ${index+1} z ${arr.length}`;document.getElementById("taskBadge").textContent=lessons[mode].name;document.getElementById("question").textContent=item[1];document.getElementById("promptEq").textContent=item[0];document.getElementById("taskHint").textContent="Wskazówka: "+(mode==="neutral"?"sprawdź liczbę H⁺ i OH⁻.":mode==="precip"?"sprawdź rozpuszczalność produktu i ładunki jonów.":"ustal, czy jon pochodzi od słabego kwasu lub słabej zasady.");document.getElementById("answerEq").textContent=item[2];document.getElementById("answerNote").textContent=item[3];document.getElementById("answer").classList.remove("show");document.getElementById("show").textContent="Pokaż odpowiedź";document.getElementById("prev").disabled=index===0;document.getElementById("next").disabled=index===arr.length-1;document.getElementById("count").textContent=`${lessons[mode].name} • ${index+1}/${arr.length}`;document.getElementById("progress").style.width=(seen.size/(data.neutral.length+data.precip.length+data.hydro.length)*100)+"%"}
+document.getElementById("show").onclick=()=>{let a=document.getElementById("answer");a.classList.toggle("show");document.getElementById("show").textContent=a.classList.contains("show")?"Ukryj odpowiedź":"Pokaż odpowiedź";seen.add(mode+index);document.getElementById("progress").style.width=(seen.size/90*100)+"%"};
+document.getElementById("prev").onclick=()=>{if(index>0){index--;renderTask()}};
+document.getElementById("next").onclick=()=>{if(index<data[mode].length-1){index++;renderTask()}};
+document.getElementById("shuffle").onclick=()=>{index=Math.floor(Math.random()*data[mode].length);renderTask()};
+renderAll();
+</script></body></html>
